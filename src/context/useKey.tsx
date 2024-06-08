@@ -27,6 +27,7 @@ export const useKeyPress = (targetKey: string) => {
 export const useComboKeyPress = (targetKeys: {
   mod: string;
   key: string;
+  persist?: boolean;
 }): [boolean, (val: boolean) => void] => {
   const [keyCombinationPressed, setKeyCombinationPressed] = useState(false);
   const [modPressed, setModPressed] = useState(false);
