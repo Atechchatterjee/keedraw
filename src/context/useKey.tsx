@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 
-export const useKeyPress = (targetKey: string) => {
+// (listening for target key) target key eg: h
+export const useKeyPress = (
+  targetKey: string
+): [boolean, (val: boolean) => void] => {
   const [keyPressed, setKeyPressed] = useState(false);
 
   const downHandler = ({ key }: KeyboardEvent) => {
@@ -21,27 +24,28 @@ export const useKeyPress = (targetKey: string) => {
     };
   }, []);
 
-  return keyPressed;
+  return [keyPressed, setKeyPressed];
 };
 
-export const useComboKeyPress = (targetKeys: {
-  mod: string;
-  key: string;
-  persist?: boolean;
-}): [boolean, (val: boolean) => void] => {
+// (listening for target key) target key eg: "Alt+h"
+export const useComboKeyPress = (
+  targetKeys: string
+): [boolean, (val: boolean) => void] => {
   const [keyCombinationPressed, setKeyCombinationPressed] = useState(false);
   const [modPressed, setModPressed] = useState(false);
 
-  const keyPressed = useKeyPress(targetKeys.key);
+  const [mod, key] = targetKeys.split("+").map((key) => key.trim());
+
+  const [keyPressed] = useKeyPress(key);
 
   function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === targetKeys.mod) {
+    if (event.key === mod) {
       setModPressed(true);
     }
   }
 
   function handleKeyUp(event: KeyboardEvent) {
-    if (event.key === targetKeys.mod) {
+    if (event.key === mod) {
       setModPressed(false);
     }
   }
@@ -51,8 +55,6 @@ export const useComboKeyPress = (targetKeys: {
       if (keyPressed) {
         setKeyCombinationPressed(true);
       }
-    } else {
-      // if (!keyPressed) setKeyCombinationPressed(false);
     }
   }, [modPressed, keyPressed]);
 
@@ -61,7 +63,6 @@ export const useComboKeyPress = (targetKeys: {
     window.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      // setKeyCombinationPressed(false);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
