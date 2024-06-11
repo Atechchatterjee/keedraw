@@ -3,9 +3,7 @@ import { useEffect, useState } from "react";
 
 // (listening for target key) target key eg: h
 export const useKeyPress = (
-  targetKey: string,
-  currentMode: MODE,
-  operatingMode: MODE
+  targetKey: string
 ): [boolean, (val: boolean) => void] => {
   const [keyPressed, setKeyPressed] = useState(false);
 
@@ -32,16 +30,14 @@ export const useKeyPress = (
 
 // (listening for target key) target key eg: "Alt+h"
 export const useComboKeyPress = (
-  targetKeys: string,
-  currentMode: MODE,
-  operatingMode: MODE
+  targetKeys: string
 ): [boolean, (val: boolean) => void] => {
   const [keyCombinationPressed, setKeyCombinationPressed] = useState(false);
   const [modPressed, setModPressed] = useState(false);
 
   const [mod, key] = targetKeys.split("+").map((key) => key.trim());
 
-  const [keyPressed] = useKeyPress(key, currentMode, operatingMode);
+  const [keyPressed] = useKeyPress(key);
 
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key === mod) {
