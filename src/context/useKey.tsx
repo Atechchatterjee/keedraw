@@ -1,4 +1,3 @@
-import { MODE } from "@/lib/type";
 import { useEffect, useState } from "react";
 
 // (listening for target key) target key eg: h
@@ -70,4 +69,70 @@ export const useComboKeyPress = (
   }, [modPressed]);
 
   return [keyCombinationPressed, setKeyCombinationPressed];
+};
+
+export const useKeyPressFunctional = (
+  targetKey: string,
+  onKeyPress: ({ up, down }: { up: boolean; down: boolean }) => void
+) => {
+  const downHandler = ({ key }: KeyboardEvent) => {
+    if (key === targetKey) {
+      onKeyPress({ up: false, down: true });
+    }
+  };
+
+  const upHandler = ({ key }: KeyboardEvent) => {
+    if (key === targetKey) {
+      onKeyPress({ up: true, down: false });
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", downHandler);
+    window.addEventListener("keyup", upHandler);
+
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      window.removeEventListener("keyup", upHandler);
+    };
+  }, []);
+};
+
+// it is a functional approach
+export const useComboKeyPressFunctional = (
+  targetKeys: string,
+  onKeyPress: () => void
+) => {
+  const [mod, key] = targetKeys.split("+").map((key) => key.trim());
+  let modPressed = false;
+
+  useKeyPressFunctional(key, ({ down }) => {
+    console.log({ modPressed });
+    if (modPressed && down) {
+      console.log(`${key} pressed`);
+      onKeyPress();
+    }
+  });
+
+  const downHandler = (event: KeyboardEvent) => {
+    if (event.key === mod) {
+      modPressed = true;
+    }
+  };
+
+  const upHandler = ({ key }: KeyboardEvent) => {
+    if (key === mod) {
+      modPressed = false;
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", downHandler);
+    window.addEventListener("keyup", upHandler);
+
+    return () => {
+      window.removeEventListener("keydown", downHandler);
+      window.removeEventListener("keyup", upHandler);
+    };
+  }, []);
 };

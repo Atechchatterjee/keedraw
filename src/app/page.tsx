@@ -1,7 +1,12 @@
 "use client";
 import DrawBoardNav from "@/components/DrawBoardNav";
 import { Input } from "@/components/ui/input";
-import { useComboKeyPress, useKeyPress } from "@/context/useKey";
+import {
+  useComboKeyPress,
+  useComboKeyPressFunctional,
+  useKeyPress,
+  useKeyPressFunctional,
+} from "@/context/useKey";
 import { MODE } from "@/lib/type";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef, useContext } from "react";
@@ -38,14 +43,14 @@ const InsertModeContext = createContext<{
   >;
 }>({
   mode: "normal",
-  setMode: () => { },
+  setMode: () => {},
   x: 750,
   y: 400,
-  setX: () => { },
-  setY: () => { },
+  setX: () => {},
+  setY: () => {},
   boxList: [],
-  setBoxList: () => { },
-  setCurrentFocusedBox: () => { },
+  setBoxList: () => {},
+  setCurrentFocusedBox: () => {},
 });
 
 function InsertMode() {
@@ -167,11 +172,11 @@ function InsertMode() {
 
   return (
     <>
-      {boxList.length === 0 && !createBoxKeyPress &&
+      {boxList.length === 0 && !createBoxKeyPress && (
         <div className="flex gap-3 p-4 border border-slate-300 rounded-lg">
           Press<p className="font-bold text-slate-600">Alt + n</p>
         </div>
-      }
+      )}
       <Input
         ref={inputRef}
         className={
@@ -204,6 +209,14 @@ export default function Home() {
   const [x, setX] = useState<number>(750);
   const [y, setY] = useState<number>(400);
 
+  useComboKeyPressFunctional("Alt+c", () => {
+    alert("Alt + c pressed");
+  });
+
+  useComboKeyPressFunctional("Alt+r", () => {
+    alert("Alt + r pressed");
+  });
+
   useEffect(() => {
     if (insertModeKeyPress) {
       setMode("insert");
@@ -231,11 +244,11 @@ export default function Home() {
         >
           {mode === "insert" && <InsertMode />}
         </InsertModeContext.Provider>
-        {boxList.length === 0 && mode === "normal" &&
+        {boxList.length === 0 && mode === "normal" && (
           <div className="flex gap-5 p-4 border border-slate-300 rounded-lg">
             Press<strong className="text-slate-600">i</strong>
           </div>
-        }
+        )}
         {boxList.map((box, i) => {
           console.log({ x: box.x, y: box.y, text: box.text });
           return (
@@ -248,6 +261,9 @@ export default function Home() {
               )}
               style={{ top: `${box.y}px`, left: `${box.x}px` }}
               key={i}
+              onClick={() => {
+                setCurrentFocusedBox(box);
+              }}
             >
               <p>{box.text}</p>
             </div>
