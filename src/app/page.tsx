@@ -1,15 +1,10 @@
 "use client";
 import DrawBoardNav from "@/components/DrawBoardNav";
 import { Input } from "@/components/ui/input";
-import {
-  useComboKeyPress,
-  useComboKeyPressFunctional,
-  useKeyPress,
-  useKeyPressFunctional,
-} from "@/context/useKey";
+import { useComboKeyPress, useKeyPress } from "@/context/useKey";
 import { MODE } from "@/lib/type";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useRef, useContext } from "react";
 import { createContext } from "react";
 
 interface BoxType {
@@ -30,61 +25,31 @@ interface BoxGraphNode {
 }
 
 const InsertModeContext = createContext<{
-  mode: MODE;
   setMode: React.Dispatch<React.SetStateAction<MODE>>;
-  x: number;
-  y: number;
-  setX: React.Dispatch<React.SetStateAction<number>>;
-  setY: React.Dispatch<React.SetStateAction<number>>;
   boxList: BoxType[];
   setBoxList: React.Dispatch<React.SetStateAction<BoxType[]>>;
   setCurrentFocusedBox: React.Dispatch<
     React.SetStateAction<BoxType | undefined>
   >;
 }>({
-  mode: "normal",
   setMode: () => {},
-  x: 750,
-  y: 400,
-  setX: () => {},
-  setY: () => {},
   boxList: [],
   setBoxList: () => {},
   setCurrentFocusedBox: () => {},
 });
 
 function InsertMode() {
-  const {
-    x,
-    y,
-    setX,
-    setY,
-    boxList,
-    setBoxList,
-    mode,
-    setMode,
-    setCurrentFocusedBox,
-  } = useContext(InsertModeContext);
-
-  const [createBoxKeyPress, setCreateBoxKeyPress] = useComboKeyPress("Alt+n");
-  const [createBoxDownKeyPress, setCreateBoxDownKeyPress] =
-    useComboKeyPress("Alt+j");
-  const [createBoxUpKeyPress, setCreateBoxUpKeyPress] =
-    useComboKeyPress("Alt+k");
-  const [createBoxLeftKeyPress, setCreateBoxLeftKeyPress] =
-    useComboKeyPress("Alt+h");
-  const [createBoxRightKeyPress, setCreateBoxRightKeyPress] =
-    useComboKeyPress("Alt+l");
-
-  const [escapeKeyPress, setEscapeKeyPress] = useKeyPress("Escape");
-
-  const [createBoxTextInput, setCreateBoxTextInput] = useState<string>("");
-  const [createBoxTrigger, setCreateBoxTrigger] = useState<boolean>(false);
+  const { boxList, setBoxList, setMode, setCurrentFocusedBox } =
+    useContext(InsertModeContext);
+  const [acceptInput, setAcceptInput] = useState<boolean>(false);
+  const [x, setX] = useState<number>(750);
+  const [y, setY] = useState<number>(400);
   const inputRef = useRef<any>(null);
 
   const displayInputBox = () => {
     if (inputRef.current) {
       inputRef.current.focus();
+      console.log("making input not hiddent");
       inputRef.current.hidden = false;
     }
   };
@@ -92,12 +57,12 @@ function InsertMode() {
   const getLastBoxListId = () =>
     boxList.length === 0 ? 0 : boxList[boxList.length - 1].id;
 
-  const handleCreateBox = () => {
+  const handleCreateBox = (inputTextValue: string) => {
     const newBox: BoxType = {
       id: getLastBoxListId() + 1,
       y: y,
       x: x,
-      text: createBoxTextInput,
+      text: inputTextValue,
     };
     setBoxList((currentBoxList) => [...currentBoxList, newBox]);
     // setting the newly created box as the current focused block
@@ -106,11 +71,9 @@ function InsertMode() {
   };
 
   const dismissInputBox = () => {
-    setCreateBoxKeyPress(false);
-    setCreateBoxTrigger(false);
-    setCreateBoxTextInput("");
-    setEscapeKeyPress(false);
-    inputRef.current.value = "";
+    setAcceptInput(false);
+    // resetting the input
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   const moveBox = (
@@ -119,81 +82,71 @@ function InsertMode() {
   ) => {
     switch (movement) {
       case "down":
-        setY(y + offset);
+        setY((prevY) => prevY + offset);
         break;
       case "up":
-        setY(y - offset);
+        setY((prevY) => prevY - offset);
         break;
       case "left":
-        setX(x - offset);
+        setX((prevX) => prevX - offset);
         break;
       case "right":
-        setX(x + offset);
+        setX((prevX) => prevX + offset);
     }
-    setCreateBoxKeyPress(true);
+    setAcceptInput(true);
   };
 
-  useEffect(() => {
-    if (escapeKeyPress) {
+  useKeyPress("Escape", ({ down }) => {
+    if (down) {
       dismissInputBox();
       setMode("normal");
     }
-  }, [escapeKeyPress]);
+  });
 
-  useEffect(() => {
-    if (createBoxKeyPress) displayInputBox();
-  }, [createBoxKeyPress]);
+  useComboKeyPress("Alt+n", function showInput() {
+    displayInputBox();
+    setAcceptInput(true);
+  });
 
-  useEffect(() => {
-    if (createBoxTrigger) handleCreateBox();
-  }, [createBoxTrigger]);
+  useComboKeyPress("Alt+j", function moveDown() {
+    console.log("moving down");
+    moveBox("down", 100);
+  });
 
-  useEffect(() => {
-    if (createBoxDownKeyPress) {
-      moveBox("down", 100);
-      setCreateBoxDownKeyPress(false);
-    } else if (createBoxUpKeyPress) {
-      moveBox("up", 100);
-      setCreateBoxUpKeyPress(false);
-    } else if (createBoxLeftKeyPress) {
-      moveBox("left", 400);
-      setCreateBoxLeftKeyPress(false);
-    } else if (createBoxRightKeyPress) {
-      moveBox("right", 400);
-      setCreateBoxRightKeyPress(false);
-    }
-  }, [
-    mode,
-    createBoxDownKeyPress,
-    createBoxUpKeyPress,
-    createBoxLeftKeyPress,
-    createBoxRightKeyPress,
-  ]);
+  useComboKeyPress("Alt+k", function moveUp() {
+    moveBox("up", 100);
+  });
+
+  useComboKeyPress("Alt+h", function moveLeft() {
+    moveBox("left", 400);
+  });
+
+  useComboKeyPress("Alt+l", function moveRight() {
+    moveBox("right", 400);
+  });
 
   return (
     <>
-      {boxList.length === 0 && !createBoxKeyPress && (
+      {boxList.length === 0 && !acceptInput && (
         <div className="flex gap-3 p-4 border border-slate-300 rounded-lg">
           Press<p className="font-bold text-slate-600">Alt + n</p>
         </div>
       )}
-      <Input
-        ref={inputRef}
-        className={
-          !createBoxKeyPress
-            ? "hidden"
-            : "bg-transparent text-md absolute z-[10000] w-[20rem] border-none outline-none border-transparent focus-visible:ring-transparent"
-        }
-        style={{ top: `${y}px`, left: `${x}px`, outline: "none" }}
-        placeholder="Start typing"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            setCreateBoxTextInput((e as any).target.value);
-            setCreateBoxTrigger(true);
-          }
-        }}
-        autoFocus={createBoxKeyPress}
-      />
+      {acceptInput && (
+        <Input
+          ref={inputRef}
+          className="bg-transparent text-md absolute z-[10000] w-[20rem] border-none outline-none border-transparent focus-visible:ring-transparent"
+          style={{ top: `${y}px`, left: `${x}px`, outline: "none" }}
+          placeholder="Start typing"
+          onKeyDown={(e: any) => {
+            if (e.key === "Enter") {
+              const textValue = e.target.value;
+              handleCreateBox(textValue);
+            }
+          }}
+          autoFocus={true}
+        />
+      )}
     </>
   );
 }
@@ -202,27 +155,13 @@ export default function Home() {
   const [mode, setMode] = useState<MODE>("insert");
   const [currentFocusedBox, setCurrentFocusedBox] = useState<BoxType>();
 
-  const [insertModeKeyPress, setInsertModeKeyPress] = useKeyPress("i");
-
   const [boxList, setBoxList] = useState<BoxType[]>([]);
 
-  const [x, setX] = useState<number>(750);
-  const [y, setY] = useState<number>(400);
-
-  useComboKeyPressFunctional("Alt+c", () => {
-    alert("Alt + c pressed");
-  });
-
-  useComboKeyPressFunctional("Alt+r", () => {
-    alert("Alt + r pressed");
-  });
-
-  useEffect(() => {
-    if (insertModeKeyPress) {
+  useKeyPress("i", ({ down }) => {
+    if (down) {
       setMode("insert");
-      setInsertModeKeyPress(false);
     }
-  }, [insertModeKeyPress]);
+  });
 
   return (
     <main className="w-full h-[100vh]">
@@ -231,15 +170,10 @@ export default function Home() {
         <DrawBoardNav className="absolute top-4 mx-auto" mode={mode} />
         <InsertModeContext.Provider
           value={{
-            mode,
             setMode,
             boxList,
             setBoxList,
             setCurrentFocusedBox,
-            x,
-            y,
-            setX,
-            setY,
           }}
         >
           {mode === "insert" && <InsertMode />}
