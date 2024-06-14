@@ -35,9 +35,7 @@ export const useComboKeyPress = (
   let modPressed = false;
 
   useKeyPress(key, ({ down }) => {
-    console.log({ modPressed });
     if (modPressed && down) {
-      console.log(`${key} pressed`);
       onKeyPress();
     }
   });
