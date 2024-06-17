@@ -1,10 +1,10 @@
 "use client";
 import DrawBoardNav from "@/components/DrawBoardNav";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useComboKeyPress, useKeyPress } from "@/context/useKey";
 import { DIR, GraphMapId, GraphNode, MODE } from "@/lib/type";
 import { cn, generateGraphIds } from "@/lib/utils";
-import { useState, useRef, useContext, useEffect } from "react";
+import { useState, useRef, useContext, useEffect, useCallback } from "react";
 import { createContext } from "react";
 
 // represents each box as a node in the graph
@@ -39,6 +39,7 @@ function InsertMode() {
 
   function displayInputBox() {
     if (inputRef.current) {
+      console.log({ inputRef: inputRef.current });
       inputRef.current.focus();
       console.log("making input not hiddent");
       inputRef.current.hidden = false;
@@ -181,7 +182,7 @@ function InsertMode() {
   });
 
   useComboKeyPress("Alt+n", function showInput() {
-    displayInputBox();
+    // displayInputBox();
     setAcceptInput(true);
   });
 
@@ -209,7 +210,7 @@ function InsertMode() {
         </div>
       )}
       {acceptInput && (
-        <Input
+        <Textarea
           ref={inputRef}
           className="bg-transparent text-md absolute z-[10000] w-[20rem] border-none outline-none border-transparent focus-visible:ring-transparent"
           style={{ top: `${y}px`, left: `${x}px`, outline: "none" }}
@@ -217,7 +218,8 @@ function InsertMode() {
           onKeyDown={(e: any) => {
             if (e.key === "Enter") handleCreateBox(e.target.value);
           }}
-          autoFocus={true}
+          autoResize
+          autoFocus
         />
       )}
     </>
