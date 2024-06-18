@@ -1,8 +1,15 @@
-import { useEffect } from "react";
+import { DependencyList, useEffect } from "react";
 
+/**
+ *
+ * @param targetKey key press to listen
+ * @param onKeyPress callback function (invoked on key press)
+ * @param dependencyList dependency list for the listener use effect
+ */
 export const useKeyPress = (
   targetKey: string,
-  onKeyPress: ({ up, down }: { up: boolean; down: boolean }) => void
+  onKeyPress: ({ up, down }: { up: boolean; down: boolean }) => void,
+  dependencyList?: DependencyList
 ) => {
   const downHandler = ({ key }: KeyboardEvent) => {
     if (key === targetKey) {
@@ -24,12 +31,19 @@ export const useKeyPress = (
       window.removeEventListener("keydown", downHandler);
       window.removeEventListener("keyup", upHandler);
     };
-  }, []);
+  }, dependencyList ?? []);
 };
 
+/**
+ *
+ * @param targetKey key press to listen
+ * @param onKeyPress callback function (invoked on key press)
+ * @param dependencyList dependency list for the listener use effect
+ */
 export const useComboKeyPress = (
   targetKeys: string,
-  onKeyPress: () => void
+  onKeyPress: () => void,
+  dependencyList?: DependencyList
 ) => {
   const [mod, key] = targetKeys.split("+").map((key) => key.trim());
   let modPressed = false;
@@ -60,5 +74,5 @@ export const useComboKeyPress = (
       window.removeEventListener("keydown", downHandler);
       window.removeEventListener("keyup", upHandler);
     };
-  }, []);
+  }, dependencyList ?? []);
 };
