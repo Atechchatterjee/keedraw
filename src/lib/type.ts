@@ -12,5 +12,6 @@ export interface GraphNode {
   length: number;
   adj: Map<DIR, GraphMapId>;
   parentId: string;
-  dir?: DIR; // direction w.r.t to the parent
+  dir: DIR; // direction w.r.t to the parent
+  quickKey?: string; // a key press to quickly navigate to the node
 }
