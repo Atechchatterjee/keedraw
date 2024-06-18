@@ -8,10 +8,10 @@ interface DrawBoardNavProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const colorMappingForModes = {
-  normal: "bg-teal-400",
-  insert: "bg-blue-300",
-  movement: "bg-violet-400",
-  visual: "bg-orange-400",
+  normal: "bg-teal-200",
+  insert: "bg-blue-200",
+  movement: "bg-violet-200",
+  visual: "bg-orange-200",
 };
 
 export default function DrawBoardNav({
