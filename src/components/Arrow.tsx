@@ -6,8 +6,8 @@ type Point = {
 interface ArrowProps extends React.SVGProps<SVGSVGElement> {
   startPoint: Point;
   endPoint: Point;
-  canvasWidth: number;
-  canvasHeight: number;
+  canvasWidth?: number;
+  canvasHeight?: number;
   canvasStartPoint?: Point;
 }
 
@@ -51,7 +51,7 @@ export const calculateControlPoints = ({
   if (dx < 0) [startPointX, endPointX] = [endPointX, startPointX];
   if (dy < 0) [startPointY, endPointY] = [endPointY, startPointY];
 
-  const fixedLineInflectionConstant = 40; // We will calculate this value dynamically in next step
+  const fixedLineInflectionConstant = 50; // We will calculate this value dynamically in next step
 
   const p1 = {
     x: startPointX,
@@ -169,6 +169,19 @@ export const Arrow = ({
       }}
       {...props}
     >
+      <defs>
+        <marker
+          id="arrow"
+          viewBox="0 0 10 10"
+          refX="5"
+          refY="5"
+          markerWidth="10"
+          markerHeight="10"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" />
+        </marker>
+      </defs>
       <path
         stroke="black"
         strokeWidth={strokeWidth}
@@ -181,6 +194,7 @@ export const Arrow = ({
             ${p3.x}, ${p3.y} 
             ${p4.x}, ${p4.y} 
           `}
+        marker-end="url(#arrow)"
       />
     </svg>
   );
