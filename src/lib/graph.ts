@@ -1,7 +1,7 @@
-import { DIR, GraphMapId, GraphNode } from "./type";
+import { DIR, GraphMapId, GraphNode, Point } from "./type";
 
 export function createGraphMapId(
-  graphNode: GraphNode | { x: number; y: number; id: string }
+  graphNode: GraphNode | (Point & { id: string })
 ): GraphMapId {
   return `${graphNode.x},${graphNode.y}_${graphNode.id}`;
 }
@@ -52,27 +52,21 @@ export function getOppositeDir(dir: DIR): DIR {
 /**
  *
  * @description finds the direction of "u" w.r.t "v"
- * @param coordinates the x, y value for the current/to be created GraphNode
+ * @param u the x, y value for the current/to be created GraphNode
  * @param v reference GraphNode
  * @returns direction (DIR)
  */
-export function getRelativeDirection(
-  coordinates: { x: number; y: number },
-  v: GraphNode | undefined
-) {
-  if (v) {
-    const normalizedX = coordinates.x - v.x,
-      normalizedY = -(coordinates.y - v.y);
+export function getRelativeDirection(u: Point, v: Point) {
+  const normalizedX = u.x - v.x,
+    normalizedY = -(u.y - v.y);
 
-    if (normalizedX === 0 && normalizedY > 0) return "t";
-    else if (normalizedX < 0 && normalizedY > 0) return "tl";
-    else if (normalizedX > 0 && normalizedY > 0) return "tl";
-    else if (normalizedX === 0 && normalizedY < 0) return "b";
-    else if (normalizedX < 0 && normalizedY < 0) return "bl";
-    else if (normalizedX > 0 && normalizedY < 0) return "br";
-    else if (normalizedX > 0 && normalizedY === 0) return "r";
-    else if (normalizedX < 0 && normalizedY === 0) return "l";
-    else return "";
-  }
-  return "";
+  if (normalizedX === 0 && normalizedY > 0) return "t";
+  else if (normalizedX < 0 && normalizedY > 0) return "tl";
+  else if (normalizedX > 0 && normalizedY > 0) return "tr";
+  else if (normalizedX === 0 && normalizedY < 0) return "b";
+  else if (normalizedX < 0 && normalizedY < 0) return "bl";
+  else if (normalizedX > 0 && normalizedY < 0) return "br";
+  else if (normalizedX > 0 && normalizedY === 0) return "r";
+  else if (normalizedX < 0 && normalizedY === 0) return "l";
+  else return "";
 }

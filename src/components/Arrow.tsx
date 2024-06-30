@@ -1,7 +1,4 @@
-type Point = {
-  x: number;
-  y: number;
-};
+import { Point } from "@/lib/type";
 
 interface ArrowProps extends React.SVGProps<SVGSVGElement> {
   startPoint: Point;
