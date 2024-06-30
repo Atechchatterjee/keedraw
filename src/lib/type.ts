@@ -4,6 +4,11 @@ export type DIR = "tl" | "bl" | "l" | "r" | "tr" | "br" | "t" | "b" | "";
 // GraphMapId = "x,y_GraphNode.id"
 export type GraphMapId = `${number},${number}_${string}`;
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
 export interface GraphNode {
   id: string;
   x: number;
