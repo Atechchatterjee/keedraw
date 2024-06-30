@@ -3,7 +3,7 @@ import { DependencyList, useEffect } from "react";
 /**
  *
  * @param targetKey key press to listen
- * @param onKeyPress callback function (invoked on key press)
+ * @param onKeyPress callback function (invoked on key press - both up and down)
  * @param dependencyList dependency list for the listener use effect
  */
 export const useKeyPress = (
